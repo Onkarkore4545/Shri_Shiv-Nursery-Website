@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shri Shiv HY-Tech Nursery</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzL0Fz_0zCJxK3mS2MxrRMg16JMs9jQJvOiIcugibJm_WeA8ZEUv3Zw8FDvPhFki2IdpQ/exec";  // Replace with your Google Apps Script URL
+
+    function hideSections() {
+      const sections = document.querySelectorAll("section");
+      sections.forEach((section) => {
+        section.style.display = "none";
+      });
+    }
+
+    function showSection(id) {
+      hideSections();
+      const section = document.getElementById(id);
+      if (section) {
+        section.style.display = "block";
+      }
+    }
+
+    function switchLanguage(lang) {
+      const elements = document.querySelectorAll("[data-en], [data-mr]");
+      elements.forEach((el) => {
+        el.innerHTML = el.getAttribute(`data-${lang}`);
+      });
+    }
+
+    window.onload = () => {
+      showSection("home");
+      setTimeout(() => {
+        if (!localStorage.getItem("phoneSubmitted")) {
+          document.getElementById("phonePopup").style.display = "flex";
+        }
+      }, 2000);
+    };
+
+    // ✅ 10-digit phone validator
+    function isValidPhone(phone) {
+      return /^\d{10}$/.test(phone);
+    }
+
+    // ✅ Phone number popup submission
+    function submitPhoneNumber() {
+      let phone = document.getElementById("userPhone").value.replace(/\D/g, '');
+      if (!isValidPhone(phone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("Thank you! We’ll be in touch.");
+          localStorage.setItem("phoneSubmitted", "true");
+          document.getElementById("phonePopup").style.display = "none";
+        })
+        .catch(err => {
+          console.error("Phone submission error:", err);
+          alert("Failed to submit. Try again later.");
+        });
+    }
+
+    // ✅ Contact Form Submission with phone
+    function submitContactForm(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const phone = document.getElementById("contactPhone").value.replace(/\D/g, '');
+
+      if (!name || !email || !message || !isValidPhone(phone)) {
+        alert("Please fill all fields correctly. Mobile number must be 10 digits.");
+        return;
+      }
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message, phone })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("Message sent successfully!");
+          document.querySelector("form").reset();
+        })
+        .catch(err => {
+          console.error("Contact form error:", err);
+          alert("Something went wrong. Please try again.");
+        });
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1 data-en="Shri Shiv HY-Tech Nursery" data-mr="श्री शिव HY-Tech नर्सरी">Shri Shiv HY-Tech Nursery</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="javascript:void(0);" onclick="showSection('home')">Home</a></li>
+        <li><a href="javascript:void(0);" onclick="showSection('about')">About Us</a></li>
+        <li><a href="javascript:void(0);" onclick="showSection('plants')">Our Plants</a></li>
+        <li><a href="javascript:void(0);" onclick="showSection('contact')">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="language-switcher">
+      <button onclick="switchLanguage('en')">English</button>
+      <button onclick="switchLanguage('mr')">मराठी</button>
+    </div>
+  </header>
+
+  <!-- Sections for content -->
+  <section id="home" class="home" style="display:none;">
+    <h2 data-en="Welcome to Shri Shiv HY-Tech Nursery" data-mr="श्री शिव HY-Tech नर्सरी मध्ये आपले स्वागत आहे">Welcome to Shiv HY-Tech Nursery</h2>
+    <p data-en="Your trusted source for high-quality 15 Number variety papaya plants." data-mr="उच्च दर्जाच्या १५ नंबर पपई रोपांसाठी तुमचा विश्वासार्ह स्रोत.">Your trusted source for high-quality 15 Number variety papaya plants.</p>
+    <img src="images/Papaya-plant.jpg" alt="Papaya Plant" style="width: 100%; max-width: 950px; opacity: 0.9; height: auto; display: block; margin: 0 auto;">  
+</section>
+
+  <section id="contact" class="contact" style="display:none;">
+    <h2 data-en="Contact Us" data-mr="संपर्क करा">Contact Us</h2>
+    <form onsubmit="submitContactForm(event)">
+      <label for="name" data-en="Name:" data-mr="नाव:">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email" data-en="Email:" data-mr="ईमेल:">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <label for="message" data-en="Message:" data-mr="संदेश:">Message:</label>
+      <textarea id="message" name="message" rows="4" required></textarea>
+      <label for="contactPhone" data-en="Mobile Number:" data-mr="मोबाईल नंबर:">Mobile Number:</label>
+      <input type="tel" id="contactPhone" name="contactPhone" placeholder="10-digit mobile" required>
+      <button type="submit" data-en="Send Message" data-mr="संदेश पाठवा">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Phone Number Popup -->
+  <div class="phone-popup" id="phonePopup">
+    <div class="popup-content">
+      <h3 data-en="Enter your phone number" data-mr="आपला मोबाईल नंबर टाका">Enter your phone number</h3>
+      <input type="tel" id="userPhone" placeholder="📱 91XXXXXXXXXX" required>
+      <button onclick="submitPhoneNumber()">Submit</button>
+    </div>
+  </div>
+</body>
+</html>
